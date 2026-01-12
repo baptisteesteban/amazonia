@@ -1,0 +1,35 @@
+{
+    "name": "Distance Transform Benchmarks",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "runArgs": [
+        "--runtime=nvidia"
+    ],
+    "remoteUser": "ubuntu",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "llvm-vs-code-extensions.vscode-clangd",
+                "ms-vscode.cmake-tools",
+                "NVIDIA.nsight-vscode-edition",
+                "ms-python.python",
+                "charliermarsh.ruff",
+                "tamasfe.even-better-toml"
+            ],
+            "settings": {
+                "clangd.arguments": [
+                    "--compile-commands-dir=build/Debug",
+                    "--header-insertion=never"
+                ],
+                "editor.formatOnSave": true
+            }
+        }
+    },
+    "mounts": [
+        "source=${localEnv:HOME}/Pictures,target=/data,type=bind,consistency=cached"
+    ],
+    "containerEnv": {
+        "UV_CACHE_DIR": "/workspaces/dist_benchmarks/.uv_cache"
+    }
+}
