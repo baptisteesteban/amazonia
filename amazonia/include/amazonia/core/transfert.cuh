@@ -27,8 +27,8 @@ namespace amazonia
   void transfert(const image2d_view<T, host_t>& src, image2d_view<T, device_t>& dst)
   {
     assert(src.nrows() == dst.nrows() && src.ncols() == dst.ncols());
-    const auto err = cudaMemcpy2D(dst.buffer(), dst.stride(0), src.buffer(), src.stride(0), src.ncols(), src.nrows(),
-                                  cudaMemcpyHostToDevice);
+    const auto err = cudaMemcpy2D(dst.buffer(), dst.stride(0), src.buffer(), src.stride(0), src.ncols() * sizeof(T),
+                                  src.nrows(), cudaMemcpyHostToDevice);
     if (err != cudaSuccess)
       throw std::runtime_error(std::format("Unable to transfert from host to device: {}", cudaGetErrorString(err)));
   }
@@ -37,8 +37,8 @@ namespace amazonia
   void transfert(const image2d_view<T, device_t>& src, image2d_view<T, host_t>& dst)
   {
     assert(src.nrows() == dst.nrows() && src.ncols() == dst.ncols());
-    const auto err = cudaMemcpy2D(dst.buffer(), dst.stride(0), src.buffer(), src.stride(0), src.ncols(), src.nrows(),
-                                  cudaMemcpyDeviceToHost);
+    const auto err = cudaMemcpy2D(dst.buffer(), dst.stride(0), src.buffer(), src.stride(0), src.ncols() * sizeof(T),
+                                  src.nrows(), cudaMemcpyDeviceToHost);
     if (err != cudaSuccess)
       throw std::runtime_error(std::format("Unable to transfert from host to device: {}", cudaGetErrorString(err)));
   }

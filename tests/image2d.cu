@@ -100,15 +100,14 @@ TEST(image2d, u8_device)
   }
 }
 
-// TODO: FIXME
-/*TEST(image2d, u32_device)
+TEST(image2d, u32_device)
 {
   using namespace amazonia;
 
   std::uint32_t       data[]       = {2, 8, 9, 4, 3, 6};
   const std::uint32_t ref_values[] = {3, 9, 10, 5, 4, 7};
   int                 shapes[]     = {2, 3};
-  int                 strides[]    = {3, 1};
+  int                 strides[]    = {3 * sizeof(std::uint32_t), sizeof(std::uint32_t)};
 
   image2d_view_host<std::uint32_t> img(data, shapes, strides);
   auto                             d_img = amazonia::transfert(img);
@@ -131,4 +130,4 @@ TEST(image2d, u8_device)
     for (int c = 0; c < img.ncols(); c++)
       ASSERT_EQ(img(l, c), ref_values[l * 3 + c]);
   }
-}*/
+}
