@@ -6,7 +6,7 @@ CREATE_SUBDIRS         = YES
 INPUT                  = ${CMAKE_SOURCE_DIR}/amazonia/include ${CMAKE_SOURCE_DIR}/amazonia/src
 RECURSIVE              = YES
 FILE_PATTERNS          = *.h *.hpp *.c *.cpp *.cu *.cuh
-EXTENSION_MAPPING      = cu=C
+EXTENSION_MAPPING      = cu=C++ cuh=C++
 
 GENERATE_HTML          = YES
 GENERATE_LATEX         = NO
