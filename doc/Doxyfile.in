@@ -1,0 +1,31 @@
+PROJECT_NAME           = amazonia
+PROJECT_BRIEF          = Image Processing Library in CUDA specialized in mathematical morphology
+OUTPUT_DIRECTORY       = ${CMAKE_BINARY_DIR}/doc/doxygen
+CREATE_SUBDIRS         = YES
+
+INPUT                  = ${CMAKE_SOURCE_DIR}/amazonia/include ${CMAKE_SOURCE_DIR}/amazonia/src
+RECURSIVE              = YES
+FILE_PATTERNS          = *.h *.hpp *.c *.cpp *.cu *.cuh
+EXTENSION_MAPPING      = cu=C
+
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+GENERATE_TREEVIEW      = YES
+
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = NO
+EXTRACT_STATIC         = YES
+
+QUIET                  = NO
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = NO
+
+INPUT_ENCODING         = UTF-8
+TAB_SIZE               = 4
+
+HAVE_DOT               = NO
+
+HTML_COLORSTYLE        = LIGHT
+DISABLE_INDEX          = NO
+FULL_SIDEBAR           = NO
+HTML_EXTRA_STYLESHEET  = @AWESOME_CSS_DIR@/doxygen-awesome.css @AWESOME_CSS_DIR@/doxygen-awesome-sidebar-only.css 

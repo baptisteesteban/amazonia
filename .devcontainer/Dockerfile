@@ -10,7 +10,9 @@ RUN apt update -y && \
     clangd \
     curl \
     wget \
-    git && \
+    git \
+    doxygen \
+    doxygen-doc && \
     rm -rf /var/lib/apt/lists/*
 
 USER ubuntu

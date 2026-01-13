@@ -10,7 +10,7 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "ENABLE_TESTS": "ON"
+                "AMAZONIA_BUILD_TESTS": "ON"
             }
         },
         {
