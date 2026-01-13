@@ -32,15 +32,15 @@ namespace amazonia
 
     image2d_view(T* buffer, int shapes[2], int strides[2]) noexcept;
 
-    __host__ __device__ T       operator()(int l, int c) noexcept;
-    __host__ __device__ const T operator()(int l, int c) const noexcept;
+    __host__ __device__ T&       operator()(int l, int c) noexcept;
+    __host__ __device__ const T& operator()(int l, int c) const noexcept;
 
     __host__ __device__ int shape(int i) const noexcept;
     __host__ __device__ int nrows() const noexcept;
     __host__ __device__ int ncols() const noexcept;
     __host__ __device__ int stride(int i) const noexcept;
 
-  private:
+  protected:
     std::uint8_t* m_buffer;     // Buffer of the image
     int           m_shapes[2];  // Shapes of the image
     int           m_strides[2]; // Strides (in bytes) of the image
@@ -102,14 +102,16 @@ namespace amazonia
   }
 
   template <typename T, typename D>
-  __host__ __device__ T image2d_view<T, D>::operator()(int l, int c) noexcept
+  __host__ __device__ T& image2d_view<T, D>::operator()(int l, int c) noexcept
   {
+    assert(m_buffer);
     return *reinterpret_cast<T*>(m_buffer + m_strides[0] * l + m_strides[1] * c);
   }
 
   template <typename T, typename D>
-  __host__ __device__ const T image2d_view<T, D>::operator()(int l, int c) const noexcept
+  __host__ __device__ const T& image2d_view<T, D>::operator()(int l, int c) const noexcept
   {
+    assert(m_buffer);
     return *reinterpret_cast<const T*>(m_buffer + m_strides[0] * l + m_strides[1] * c);
   }
 

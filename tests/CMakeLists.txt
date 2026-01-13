@@ -13,3 +13,4 @@ function(amazonia_add_test name)
 endfunction()
 
 amazonia_add_test(image2d_view)
+amazonia_add_test(image2d)
