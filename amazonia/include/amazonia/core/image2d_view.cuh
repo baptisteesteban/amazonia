@@ -40,6 +40,9 @@ namespace amazonia
     __host__ __device__ int ncols() const noexcept;
     __host__ __device__ int stride(int i) const noexcept;
 
+    __host__ __device__ std::uint8_t* buffer() noexcept;
+    __host__ __device__ const std::uint8_t* buffer() const noexcept;
+
   protected:
     std::uint8_t* m_buffer;     // Buffer of the image
     int           m_shapes[2];  // Shapes of the image
@@ -139,5 +142,17 @@ namespace amazonia
   {
     assert(i < 2);
     return m_strides[i];
+  }
+
+  template <typename T, typename D>
+  __host__ __device__ std::uint8_t* image2d_view<T, D>::buffer() noexcept
+  {
+    return m_buffer;
+  }
+
+  template <typename T, typename D>
+  __host__ __device__ const std::uint8_t* image2d_view<T, D>::buffer() const noexcept
+  {
+    return m_buffer;
   }
 } // namespace amazonia
