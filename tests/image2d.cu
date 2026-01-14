@@ -1,5 +1,5 @@
 #include <amazonia/core/image2d.cuh>
-#include <amazonia/core/transfert.cuh>
+#include <amazonia/core/transfer.cuh>
 
 #include <gtest/gtest.h>
 
@@ -78,7 +78,7 @@ TEST(image2d, u8_device)
   int                strides[]    = {3, 1};
 
   image2d_view_host<std::uint8_t> img(data, shapes, strides);
-  auto                            d_img = amazonia::transfert(img);
+  auto                            d_img = amazonia::transfer(img);
   ASSERT_EQ(d_img.nrows(), 2);
   ASSERT_EQ(d_img.ncols(), 3);
   ASSERT_EQ(d_img.shape(0), d_img.nrows());
@@ -91,7 +91,7 @@ TEST(image2d, u8_device)
     cudaDeviceSynchronize();
   }
 
-  amazonia::transfert(d_img, img);
+  amazonia::transfer(d_img, img);
 
   for (int l = 0; l < img.nrows(); l++)
   {
@@ -110,7 +110,7 @@ TEST(image2d, u32_device)
   int                 strides[]    = {3 * sizeof(std::uint32_t), sizeof(std::uint32_t)};
 
   image2d_view_host<std::uint32_t> img(data, shapes, strides);
-  auto                             d_img = amazonia::transfert(img);
+  auto                             d_img = amazonia::transfer(img);
   ASSERT_EQ(d_img.nrows(), 2);
   ASSERT_EQ(d_img.ncols(), 3);
   ASSERT_EQ(d_img.shape(0), d_img.nrows());
@@ -123,7 +123,7 @@ TEST(image2d, u32_device)
     cudaDeviceSynchronize();
   }
 
-  amazonia::transfert(d_img, img);
+  amazonia::transfer(d_img, img);
 
   for (int l = 0; l < img.nrows(); l++)
   {

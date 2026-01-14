@@ -5,6 +5,7 @@
 #include <cassert>
 #include <cstdint>
 #include <cstring>
+#include <utility>
 
 namespace amazonia
 {
@@ -90,7 +91,7 @@ namespace amazonia
     : m_buffer(nullptr)
   {
     std::memset(m_shapes, 0, 2 * sizeof(int));
-    std::memset(m_shapes, 0, 2 * sizeof(int));
+    std::memset(m_strides, 0, 2 * sizeof(int));
   }
 
   template <typename T, typename D>
@@ -139,6 +140,7 @@ namespace amazonia
   template <typename T, typename D>
   __host__ __device__ T& image2d_view<T, D>::operator()(int l, int c) noexcept
   {
+    assert(l >= 0 && c >= 0 && l < m_shapes[0] && c < m_shapes[1]);
     assert(m_buffer);
     return *reinterpret_cast<T*>(m_buffer + m_strides[0] * l + m_strides[1] * c);
   }
@@ -146,6 +148,7 @@ namespace amazonia
   template <typename T, typename D>
   __host__ __device__ const T& image2d_view<T, D>::operator()(int l, int c) const noexcept
   {
+    assert(l >= 0 && c >= 0 && l < m_shapes[0] && c < m_shapes[1]);
     assert(m_buffer);
     return *reinterpret_cast<const T*>(m_buffer + m_strides[0] * l + m_strides[1] * c);
   }
@@ -153,7 +156,7 @@ namespace amazonia
   template <typename T, typename D>
   __host__ __device__ int image2d_view<T, D>::shape(int i) const noexcept
   {
-    assert(i < 2);
+    assert(i >= 0 && i < 2);
     return m_shapes[i];
   }
 
@@ -172,7 +175,7 @@ namespace amazonia
   template <typename T, typename D>
   __host__ __device__ int image2d_view<T, D>::stride(int i) const noexcept
   {
-    assert(i < 2);
+    assert(i >= 0 && i < 2);
     return m_strides[i];
   }
 
