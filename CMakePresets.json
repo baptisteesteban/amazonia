@@ -9,7 +9,8 @@
             "binaryDir": "${sourceDir}/build/Debug",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "AMAZONIA_BUILD_TESTS": "ON"
             }
         },
         {
@@ -35,6 +36,15 @@
             "displayName": "Release",
             "description": "Release build of the project",
             "configurePreset": "release"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "debug",
+            "configurePreset": "debug",
+            "output": {
+                "outputOnFailure": true
+            }
         }
     ]
 }
