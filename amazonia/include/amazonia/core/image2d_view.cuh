@@ -8,6 +8,9 @@
 
 namespace amazonia
 {
+  /// \brief Class implementing a non owning data 2D image.
+  /// \tparam T Data type of the image view values
+  /// \tparam D Device location of the image view data
   template <typename T, typename D>
   class image2d_view;
 
@@ -30,23 +33,52 @@ namespace amazonia
     image2d_view& operator=(const image2d_view&) noexcept;
     image2d_view& operator=(image2d_view&&) noexcept;
 
+    /// \brief Constructor of an `image2d_view`
+    /// \param buffer The input buffer. Its memory location (on host or device memory)
+    /// is not checked and must be verified by the developper.
+    /// \param shapes The shapes of the image in the form `{nrows, ncols}`.
+    /// \param strides The amount of bytes to go to the next element at axis `i` in the iᵗʰ value of the table.
+
     image2d_view(T* buffer, int shapes[2], int strides[2]) noexcept;
 
-    __host__ __device__ T&       operator()(int l, int c) noexcept;
+    /// \brief Image value accessor (read/write)
+    /// \param l The row of the desired value
+    /// \param c The column of the desired value
+    /// \return A reference to the desired value
+    __host__ __device__ T& operator()(int l, int c) noexcept;
+
+    /// \brief Image value accessor (read-only)
+    /// \param l The row of the desired value
+    /// \param c The column of the desired value
+    /// \return A const reference to the desired value
     __host__ __device__ const T& operator()(int l, int c) const noexcept;
 
+    /// \brief Shape information accessor
+    /// \param i The desired shape axis
+    /// \return The desired shape
     __host__ __device__ int shape(int i) const noexcept;
+
+    /// \brief Get the number of row of the image
     __host__ __device__ int nrows() const noexcept;
+
+    /// \brief Get the number of columns of the image
     __host__ __device__ int ncols() const noexcept;
+
+    /// \brief Stride information accessor
+    /// \param i The desired stride axis
+    /// \return The desired stride
     __host__ __device__ int stride(int i) const noexcept;
 
+    /// \brief Get the buffer of data (read/write)
     __host__ __device__ std::uint8_t* buffer() noexcept;
+
+    /// \brief Get the buffer of data (read-only)
     __host__ __device__ const std::uint8_t* buffer() const noexcept;
 
   protected:
-    std::uint8_t* m_buffer;     // Buffer of the image
-    int           m_shapes[2];  // Shapes of the image
-    int           m_strides[2]; // Strides (in bytes) of the image
+    std::uint8_t* m_buffer;     ///< Buffer of the image
+    int           m_shapes[2];  ///< Shapes of the image
+    int           m_strides[2]; ///< Strides (in bytes) of the image
   };
 
   /*

@@ -7,6 +7,10 @@
 
 namespace amazonia
 {
+  /// \brief Class implementing a owning data 2D image. This class inherits from `image2d_view`
+  /// so it uses its methods.
+  /// \tparam T Data type of the image values
+  /// \tparam D Device location of the image data
   template <typename T, typename D>
   class image2d;
 
@@ -29,10 +33,13 @@ namespace amazonia
     image2d& operator=(const image2d&) noexcept;
     image2d& operator=(image2d&&) noexcept;
 
+    /// \brief Constructor of a 2D image.
+    /// \param nrows The number of row of the output 2D image.
+    /// \param nrows The number of column of the output 2D image.
     image2d(int nrows, int ncols);
 
   private:
-    std::shared_ptr<image2d_data<T, D>> m_data;
+    std::shared_ptr<image2d_data<T, D>> m_data; ///< Data storage
   };
 
   /*

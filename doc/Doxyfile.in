@@ -29,3 +29,7 @@ HTML_COLORSTYLE        = LIGHT
 DISABLE_INDEX          = NO
 FULL_SIDEBAR           = NO
 HTML_EXTRA_STYLESHEET  = @AWESOME_CSS_DIR@/doxygen-awesome.css @AWESOME_CSS_DIR@/doxygen-awesome-sidebar-only.css 
+
+USE_MATHJAX           = YES
+## Doxygen works reliably with MathJax v2; use the v2 CDN so inline math renders.
+MATHJAX_RELPATH       = https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_HTML
