@@ -14,3 +14,5 @@ endfunction()
 
 amazonia_add_test(image2d_view)
 amazonia_add_test(image2d)
+amazonia_add_test(io)
+target_link_libraries(test_io PRIVATE amazonia::io)
