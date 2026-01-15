@@ -1,1 +1,2 @@
-add_executable(main main.cu)
+add_executable(generalised_geodesic generalised_geodesic.cu)
+target_link_libraries(generalised_geodesic PRIVATE amazonia::io)
