@@ -57,6 +57,12 @@ TEST(image2d, u32_host)
     for (int c = 0; c < img.ncols(); c++)
       ASSERT_EQ(img(l, c), data[l * 3 + c]);
   }
+
+  img.resize(3, 2);
+  ASSERT_EQ(img.nrows(), 3);
+  ASSERT_EQ(img.ncols(), 2);
+  ASSERT_EQ(img.stride(0), 2 * e_size);
+  ASSERT_EQ(img.stride(1), e_size);
 }
 
 template <typename T>

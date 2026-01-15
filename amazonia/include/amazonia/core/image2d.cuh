@@ -38,6 +38,13 @@ namespace amazonia
     /// \param ncols The number of columns of the output 2D image.
     image2d(int nrows, int ncols);
 
+    /// \brief Resize the internal storage of a 2D image. Be careful: the
+    /// resize operation drop the data stored in the image and replace it
+    /// by a new buffer
+    /// \param nrows The desired number of rows
+    /// \param ncols The desired number of columns
+    void resize(int nrows, int ncols);
+
   private:
     std::shared_ptr<image2d_data<T, D>> m_data; ///< Data storage
   };
@@ -91,5 +98,19 @@ namespace amazonia
     this->m_shapes[0] = nrows;
     this->m_shapes[1] = ncols;
     std::memcpy(this->m_strides, m_data->strides, 2 * sizeof(int));
+  }
+
+  template <typename T, typename D>
+  void image2d<T, D>::resize(int nrows, int ncols)
+  {
+    auto candidate = std::make_shared<image2d_data<T, D>>(nrows, ncols);
+    if (candidate)
+    {
+      m_data            = candidate;
+      this->m_buffer    = m_data->buffer;
+      this->m_shapes[0] = nrows;
+      this->m_shapes[1] = ncols;
+      std::memcpy(this->m_strides, m_data->strides, 2 * sizeof(int));
+    }
   }
 } // namespace amazonia

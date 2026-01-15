@@ -4,6 +4,8 @@ target_include_directories(amazonia-core INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/i
 
 add_library(amazonia-io-stb src/io/stb_image_implementation.cu)
 target_compile_options(amazonia-io-stb PRIVATE "--diag-suppress=550")
-add_library(amazonia-io INTERFACE)
+add_library(amazonia-io)
 add_library(amazonia::io ALIAS amazonia-io)
-target_link_libraries(amazonia-io INTERFACE amazonia-io-stb amazonia-core)
+target_sources(amazonia-io PRIVATE src/io/imread.cu)
+target_link_libraries(amazonia-io PRIVATE amazonia-io-stb)
+target_link_libraries(amazonia-io PUBLIC amazonia-core)
