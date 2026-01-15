@@ -1,3 +1,4 @@
+#include <amazonia/core/rgb.cuh>
 #include <amazonia/io/imwrite.cuh>
 
 #include <format>
@@ -15,5 +16,14 @@ namespace amazonia::io
       throw std::invalid_argument(std::format("Only PNG file can be saved (Got filename {})", filename));
 
     stbi_write_png(filename, img.ncols(), img.nrows(), 1, img.buffer(), img.stride(0));
+  }
+
+  template <>
+  void imwrite(const char* filename, const image2d_view_host<rgb8>& img)
+  {
+    if (!std::string_view(filename).ends_with(".png"))
+      throw std::invalid_argument(std::format("Only PNG file can be saved (Got filename {})", filename));
+
+    stbi_write_png(filename, img.ncols(), img.nrows(), 3, img.buffer(), img.stride(0));
   }
 } // namespace amazonia::io
