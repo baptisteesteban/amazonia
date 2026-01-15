@@ -4,6 +4,8 @@
 
 #include <gtest/gtest.h>
 
+#include "helpers.cuh"
+
 TEST(IO, image2d_u8)
 {
   using namespace amazonia;
@@ -22,11 +24,7 @@ TEST(IO, image2d_u8)
     ASSERT_EQ(loaded.shape(i), in.shape(i));
     ASSERT_EQ(loaded.stride(i), in.stride(i));
   }
-  for (int l = 0; l < loaded.nrows(); l++)
-  {
-    for (int c = 0; c < loaded.ncols(); c++)
-      ASSERT_EQ(loaded(l, c), in(l, c));
-  }
+  ASSERT_IMAGES_EQ(loaded, in);
 }
 
 TEST(IO, image2d_rgb8)
@@ -49,9 +47,5 @@ TEST(IO, image2d_rgb8)
     ASSERT_EQ(loaded.shape(i), in.shape(i));
     ASSERT_EQ(loaded.stride(i), in.stride(i));
   }
-  for (int l = 0; l < loaded.nrows(); l++)
-  {
-    for (int c = 0; c < loaded.ncols(); c++)
-      ASSERT_EQ(loaded(l, c), in(l, c));
-  }
+  ASSERT_IMAGES_EQ(loaded, in);
 }
