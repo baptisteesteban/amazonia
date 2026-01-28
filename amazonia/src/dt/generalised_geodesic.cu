@@ -85,6 +85,14 @@ namespace amazonia::dt
     }
   } // namespace
 
+  /// \brief Compute the generalised geodesic distance transform on a 2D image. Be careful to provide an `out` image
+  /// whose dimension are the same as `img` and `mask`.
+  /// \param img The input image.
+  /// \param seeds The seed points from which the distance transform is computed. It is represented as an image whose
+  /// values is > 0 is the pixel point is a seed and 0 otherwise.
+  /// \param out The output distance map.
+  /// \param lambda The distance transform parameter. If lambda is 0, the distance is Euclidean; If lambda is 1, the
+  /// distance is geodesic, else, it is a mix of both.
   void generalised_geodesic(const image2d_view_device<std::uint8_t>& img,
                             const image2d_view_device<std::uint8_t>& seeds, image2d_view_device<float>& out,
                             float lambda)
@@ -123,6 +131,14 @@ namespace amazonia::dt
       throw std::runtime_error(std::format("[generalised_geodesic_2d] error: {}", cudaGetErrorString(err)));
   }
 
+  /// \brief Compute the generalised geodesic distance transform.
+  /// \param img The input image.
+  /// \param seeds The seed points from which the distance transform is computed.
+  /// It is represented as an image whose values is > 0 is the pixel point is
+  /// a seed and 0 otherwise.
+  /// \param lambda The distance transform parameter. If lambda is 0, the distance is Euclidean; If lambda is 1, the
+  /// distance is geodesic, else, it is a mix of both.
+  /// \return The output distance map.
   image2d_device<float> generalised_geodesic(const image2d_view_device<std::uint8_t>& img,
                                              const image2d_view_device<std::uint8_t>& seeds, float lambda)
   {
