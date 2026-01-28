@@ -37,38 +37,35 @@ namespace amazonia
     /// \brief Constructor of an `image2d_view`
     /// \param buffer The input buffer. Its memory location (on host or device memory)
     /// is not checked and must be verified by the developper.
-    /// \param shapes The shapes of the image in the form `{nrows, ncols}`.
-    /// \param strides The amount of bytes to go to the next element at axis `i` in the iᵗʰ value of the table.
-
-    image2d_view(T* buffer, int shapes[2], int strides[2]) noexcept;
+    /// \param width The width of the view.
+    /// \param height The height of the view.
+    /// \param spitch The pitch (in bytes) between two contiguous lines.
+    /// \param epitch The pitch (in bytes) between two contiguous elements.
+    image2d_view(T* buffer, int width, int height, int spitch, int epitch = sizeof(T)) noexcept;
 
     /// \brief Image value accessor (read/write)
-    /// \param l The row of the desired value
-    /// \param c The column of the desired value
+    /// \param x The `x`-coordinate of the desired pixel value
+    /// \param y The `y`-coordinate of the desired pixel value
     /// \return A reference to the desired value
-    __host__ __device__ T& operator()(int l, int c) noexcept;
+    __host__ __device__ T& operator()(int x, int y) noexcept;
 
     /// \brief Image value accessor (read-only)
-    /// \param l The row of the desired value
-    /// \param c The column of the desired value
+    /// \param x The `x`-coordinate of the desired pixel value
+    /// \param y The `y`-coordinate of the desired pixel value
     /// \return A const reference to the desired value
-    __host__ __device__ const T& operator()(int l, int c) const noexcept;
+    __host__ __device__ const T& operator()(int x, int y) const noexcept;
 
-    /// \brief Shape information accessor
-    /// \param i The desired shape axis
-    /// \return The desired shape
-    __host__ __device__ int shape(int i) const noexcept;
+    /// \brief Get the width of the image
+    __host__ __device__ int width() const noexcept;
 
-    /// \brief Get the number of row of the image
-    __host__ __device__ int nrows() const noexcept;
+    /// \brief Get the height of the image
+    __host__ __device__ int height() const noexcept;
 
-    /// \brief Get the number of columns of the image
-    __host__ __device__ int ncols() const noexcept;
+    /// \brief Get the pitch (in bytes) between two contiguous lines of an image
+    __host__ __device__ int spitch() const noexcept;
 
-    /// \brief Stride information accessor
-    /// \param i The desired stride axis
-    /// \return The desired stride
-    __host__ __device__ int stride(int i) const noexcept;
+    /// \brief Get the pitch (in bytes) between two contiguous values of an image
+    __host__ __device__ int epitch() const noexcept;
 
     /// \brief Get the buffer of data (read/write)
     __host__ __device__ std::uint8_t* buffer() noexcept;
@@ -77,9 +74,11 @@ namespace amazonia
     __host__ __device__ const std::uint8_t* buffer() const noexcept;
 
   protected:
-    std::uint8_t* m_buffer;     ///< Buffer of the image
-    int           m_shapes[2];  ///< Shapes of the image
-    int           m_strides[2]; ///< Strides (in bytes) of the image
+    std::uint8_t* m_buffer; ///< Buffer of the image.
+    int           m_width;  ///< The width of the image.
+    int           m_height; ///< The height of the image.
+    int           m_spitch; ///< The pitch (in bytes) from a line of the image to the other.
+    int           m_epitch; ///< The pitch (in bytes) between two contiguous value on a row.
   };
 
   /*
@@ -89,34 +88,42 @@ namespace amazonia
   template <typename T, typename D>
   image2d_view<T, D>::image2d_view() noexcept
     : m_buffer(nullptr)
+    , m_width(0)
+    , m_height(0)
+    , m_spitch(0)
+    , m_epitch(0)
   {
-    std::memset(m_shapes, 0, 2 * sizeof(int));
-    std::memset(m_strides, 0, 2 * sizeof(int));
   }
 
   template <typename T, typename D>
   image2d_view<T, D>::image2d_view(const image2d_view& other) noexcept
     : m_buffer(other.m_buffer)
+    , m_width(other.m_width)
+    , m_height(other.m_height)
+    , m_spitch(other.m_spitch)
+    , m_epitch(other.m_epitch)
   {
-    std::memcpy(m_shapes, other.m_shapes, 2 * sizeof(int));
-    std::memcpy(m_strides, other.m_strides, 2 * sizeof(int));
   }
 
   template <typename T, typename D>
   image2d_view<T, D>::image2d_view(image2d_view&& other) noexcept
     : m_buffer(nullptr)
+    , m_width(other.m_width)
+    , m_height(other.m_height)
+    , m_spitch(other.m_spitch)
+    , m_epitch(other.m_epitch)
   {
     std::swap(m_buffer, other.m_buffer);
-    std::memcpy(m_shapes, other.m_shapes, 2 * sizeof(int));
-    std::memcpy(m_strides, other.m_strides, 2 * sizeof(int));
   }
 
   template <typename T, typename D>
   image2d_view<T, D>& image2d_view<T, D>::operator=(const image2d_view& other) noexcept
   {
     m_buffer = other.m_buffer;
-    std::memcpy(m_shapes, other.m_shapes, 2 * sizeof(int));
-    std::memcpy(m_strides, other.m_strides, 2 * sizeof(int));
+    m_width  = other.m_width;
+    m_height = other.m_height;
+    m_spitch = other.m_spitch;
+    m_epitch = other.m_epitch;
     return *this;
   }
 
@@ -124,59 +131,62 @@ namespace amazonia
   image2d_view<T, D>& image2d_view<T, D>::operator=(image2d_view&& other) noexcept
   {
     m_buffer = std::exchange(other.m_buffer, nullptr);
-    std::memcpy(m_shapes, other.m_shapes, 2 * sizeof(int));
-    std::memcpy(m_strides, other.m_strides, 2 * sizeof(int));
+    m_buffer = other.m_buffer;
+    m_width  = other.m_width;
+    m_height = other.m_height;
+    m_spitch = other.m_spitch;
+    m_epitch = other.m_epitch;
     return *this;
   }
 
   template <typename T, typename D>
-  image2d_view<T, D>::image2d_view(T* buffer, int shapes[2], int strides[2]) noexcept
+  image2d_view<T, D>::image2d_view(T* buffer, int width, int height, int spitch, int epitch) noexcept
     : m_buffer(reinterpret_cast<std::uint8_t*>(buffer))
+    , m_width(width)
+    , m_height(height)
+    , m_spitch(spitch)
+    , m_epitch(epitch)
   {
-    std::memcpy(m_shapes, shapes, 2 * sizeof(int));
-    std::memcpy(m_strides, strides, 2 * sizeof(int));
   }
 
   template <typename T, typename D>
-  __host__ __device__ T& image2d_view<T, D>::operator()(int l, int c) noexcept
+  __host__ __device__ T& image2d_view<T, D>::operator()(int x, int y) noexcept
   {
-    assert(l >= 0 && c >= 0 && l < m_shapes[0] && c < m_shapes[1]);
+    assert(x >= 0 && y >= 0 && x < m_width && y < m_height);
     assert(m_buffer);
-    return *reinterpret_cast<T*>(m_buffer + m_strides[0] * l + m_strides[1] * c);
+    return *reinterpret_cast<T*>(m_buffer + m_spitch * y + m_epitch * x);
   }
 
   template <typename T, typename D>
-  __host__ __device__ const T& image2d_view<T, D>::operator()(int l, int c) const noexcept
+  __host__ __device__ const T& image2d_view<T, D>::operator()(int x, int y) const noexcept
   {
-    assert(l >= 0 && c >= 0 && l < m_shapes[0] && c < m_shapes[1]);
+    assert(x >= 0 && y >= 0 && x < m_width && y < m_height);
     assert(m_buffer);
-    return *reinterpret_cast<const T*>(m_buffer + m_strides[0] * l + m_strides[1] * c);
+    return *reinterpret_cast<const T*>(m_buffer + m_spitch * y + m_epitch * x);
   }
 
   template <typename T, typename D>
-  __host__ __device__ int image2d_view<T, D>::shape(int i) const noexcept
+  __host__ __device__ int image2d_view<T, D>::width() const noexcept
   {
-    assert(i >= 0 && i < 2);
-    return m_shapes[i];
+    return m_width;
   }
 
   template <typename T, typename D>
-  __host__ __device__ int image2d_view<T, D>::nrows() const noexcept
+  __host__ __device__ int image2d_view<T, D>::height() const noexcept
   {
-    return shape(0);
+    return m_height;
   }
 
   template <typename T, typename D>
-  __host__ __device__ int image2d_view<T, D>::ncols() const noexcept
+  __host__ __device__ int image2d_view<T, D>::spitch() const noexcept
   {
-    return shape(1);
+    return m_spitch;
   }
 
   template <typename T, typename D>
-  __host__ __device__ int image2d_view<T, D>::stride(int i) const noexcept
+  __host__ __device__ int image2d_view<T, D>::epitch() const noexcept
   {
-    assert(i >= 0 && i < 2);
-    return m_strides[i];
+    return m_epitch;
   }
 
   template <typename T, typename D>

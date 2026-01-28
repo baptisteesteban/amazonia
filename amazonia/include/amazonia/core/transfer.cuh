@@ -38,9 +38,9 @@ namespace amazonia
   template <typename T>
   void transfer(const image2d_view<T, host_t>& src, image2d_view<T, device_t>& dst)
   {
-    assert(src.nrows() == dst.nrows() && src.ncols() == dst.ncols());
-    const auto err = cudaMemcpy2D(dst.buffer(), dst.stride(0), src.buffer(), src.stride(0), src.ncols() * sizeof(T),
-                                  src.nrows(), cudaMemcpyHostToDevice);
+    assert(src.width() == dst.width() && src.height() == dst.height());
+    const auto err = cudaMemcpy2D(dst.buffer(), dst.spitch(), src.buffer(), src.spitch(), src.width() * sizeof(T),
+                                  src.height(), cudaMemcpyHostToDevice);
     if (err != cudaSuccess)
       throw std::runtime_error(std::format("Unable to transfert from host to device: {}", cudaGetErrorString(err)));
   }
@@ -48,9 +48,9 @@ namespace amazonia
   template <typename T>
   void transfer(const image2d_view<T, device_t>& src, image2d_view<T, host_t>& dst)
   {
-    assert(src.nrows() == dst.nrows() && src.ncols() == dst.ncols());
-    const auto err = cudaMemcpy2D(dst.buffer(), dst.stride(0), src.buffer(), src.stride(0), src.ncols() * sizeof(T),
-                                  src.nrows(), cudaMemcpyDeviceToHost);
+    assert(src.width() == dst.width() && src.height() == dst.height());
+    const auto err = cudaMemcpy2D(dst.buffer(), dst.spitch(), src.buffer(), src.spitch(), src.width() * sizeof(T),
+                                  src.height(), cudaMemcpyDeviceToHost);
     if (err != cudaSuccess)
       throw std::runtime_error(std::format("Unable to transfert from host to device: {}", cudaGetErrorString(err)));
   }
@@ -58,7 +58,7 @@ namespace amazonia
   template <typename T>
   image2d<T, device_t> transfer(const image2d_view<T, host_t>& src)
   {
-    image2d<T, device_t> res(src.nrows(), src.ncols());
+    image2d<T, device_t> res(src.width(), src.height());
     transfer(src, res);
     return res;
   }
@@ -66,7 +66,7 @@ namespace amazonia
   template <typename T>
   image2d<T, host_t> transfer(const image2d_view<T, device_t>& src)
   {
-    image2d<T, host_t> res(src.nrows(), src.ncols());
+    image2d<T, host_t> res(src.width(), src.height());
     transfer(src, res);
     return res;
   }

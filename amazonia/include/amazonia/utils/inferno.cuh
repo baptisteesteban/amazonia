@@ -290,12 +290,12 @@ namespace amazonia::utils
   {
     T min = std::numeric_limits<T>::max();
     T max = std::numeric_limits<T>::min();
-    for (int l = 0; l < in.nrows(); l++)
+    for (int y = 0; y < in.height(); y++)
     {
-      for (int c = 0; c < in.ncols(); c++)
+      for (int x = 0; x < in.width(); x++)
       {
-        min = std::min(min, in(l, c));
-        max = std::max(max, in(l, c));
+        min = std::min(min, in(x, y));
+        max = std::max(max, in(x, y));
       }
     }
     return {min, max};
@@ -304,14 +304,14 @@ namespace amazonia::utils
   template <typename T>
   void colorize_inferno(const image2d_view_host<T>& in, image2d_view_host<rgb8>& out) noexcept
   {
-    assert(in.nrows() == out.nrows() && in.ncols() == out.ncols());
+    assert(in.width() == out.width() && in.height() == out.height());
     const auto [min_v, max_v] = minmax(in);
-    for (int l = 0; l < out.nrows(); l++)
+    for (int y = 0; y < out.height(); y++)
     {
-      for (int c = 0; c < out.ncols(); c++)
+      for (int x = 0; x < out.width(); x++)
       {
-        const int ind = (static_cast<float>(in(l, c)) - min_v) / (max_v - min_v) * 255;
-        out(l, c)     = inferno_mapping[ind];
+        const int ind = (static_cast<float>(in(x, y)) - min_v) / (max_v - min_v) * 255;
+        out(x, y)     = inferno_mapping[ind];
       }
     }
   }
@@ -319,7 +319,7 @@ namespace amazonia::utils
   template <typename T>
   image2d_host<rgb8> colorize_inferno(const image2d_view_host<T>& in)
   {
-    image2d_host<rgb8> out(in.nrows(), in.ncols());
+    image2d_host<rgb8> out(in.width(), in.height());
     colorize_inferno(in, out);
     return out;
   }

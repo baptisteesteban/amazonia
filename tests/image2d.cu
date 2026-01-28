@@ -9,24 +9,22 @@ TEST(image2d, u8_host)
 
   std::uint8_t data[] = {2, 8, 9, 4, 3, 6};
 
-  image2d_host<std::uint8_t> img(2, 3);
-  ASSERT_EQ(img.nrows(), 2);
-  ASSERT_EQ(img.ncols(), 3);
-  ASSERT_EQ(img.shape(0), img.nrows());
-  ASSERT_EQ(img.shape(1), img.ncols());
-  ASSERT_EQ(img.stride(0), 3);
-  ASSERT_EQ(img.stride(1), 1);
+  image2d_host<std::uint8_t> img(3, 2);
+  ASSERT_EQ(img.height(), 2);
+  ASSERT_EQ(img.width(), 3);
+  ASSERT_EQ(img.spitch(), 3);
+  ASSERT_EQ(img.epitch(), 1);
 
-  for (int l = 0; l < img.nrows(); l++)
+  for (int y = 0; y < img.height(); y++)
   {
-    for (int c = 0; c < img.ncols(); c++)
-      img(l, c) = data[l * 3 + c];
+    for (int x = 0; x < img.width(); x++)
+      img(x, y) = data[y * 3 + x];
   }
 
-  for (int l = 0; l < img.nrows(); l++)
+  for (int y = 0; y < img.height(); y++)
   {
-    for (int c = 0; c < img.ncols(); c++)
-      ASSERT_EQ(img(l, c), data[l * 3 + c]);
+    for (int x = 0; x < img.width(); x++)
+      ASSERT_EQ(img(x, y), data[y * 3 + x]);
   }
 }
 
@@ -38,31 +36,29 @@ TEST(image2d, u32_host)
 
   value_t data[] = {2, 8, 9, 4, 3, 6};
 
-  image2d_host<value_t> img(2, 3);
-  ASSERT_EQ(img.nrows(), 2);
-  ASSERT_EQ(img.ncols(), 3);
-  ASSERT_EQ(img.shape(0), img.nrows());
-  ASSERT_EQ(img.shape(1), img.ncols());
-  ASSERT_EQ(img.stride(0), 3 * e_size);
-  ASSERT_EQ(img.stride(1), e_size);
+  image2d_host<value_t> img(3, 2);
+  ASSERT_EQ(img.height(), 2);
+  ASSERT_EQ(img.width(), 3);
+  ASSERT_EQ(img.spitch(), 3 * e_size);
+  ASSERT_EQ(img.epitch(), e_size);
 
-  for (int l = 0; l < img.nrows(); l++)
+  for (int y = 0; y < img.height(); y++)
   {
-    for (int c = 0; c < img.ncols(); c++)
-      img(l, c) = data[l * 3 + c];
+    for (int x = 0; x < img.width(); x++)
+      img(x, y) = data[y * 3 + x];
   }
 
-  for (int l = 0; l < img.nrows(); l++)
+  for (int y = 0; y < img.height(); y++)
   {
-    for (int c = 0; c < img.ncols(); c++)
-      ASSERT_EQ(img(l, c), data[l * 3 + c]);
+    for (int x = 0; x < img.width(); x++)
+      ASSERT_EQ(img(x, y), data[y * 3 + x]);
   }
 
   img.resize(3, 2);
-  ASSERT_EQ(img.nrows(), 3);
-  ASSERT_EQ(img.ncols(), 2);
-  ASSERT_EQ(img.stride(0), 2 * e_size);
-  ASSERT_EQ(img.stride(1), e_size);
+  ASSERT_EQ(img.width(), 3);
+  ASSERT_EQ(img.height(), 2);
+  ASSERT_EQ(img.spitch(), 3 * e_size);
+  ASSERT_EQ(img.epitch(), e_size);
 }
 
 template <typename T>
@@ -70,8 +66,8 @@ __global__ void add_one(amazonia::image2d_view<T, amazonia::device_t>& img)
 {
   const int x = blockIdx.x * blockDim.x + threadIdx.x;
   const int y = blockIdx.y * blockDim.y + threadIdx.y;
-  if (x < img.ncols() && y < img.nrows())
-    img(y, x) += 1;
+  if (x < img.width() && y < img.height())
+    img(x, y) += 1;
 }
 
 TEST(image2d, u8_device)
@@ -80,15 +76,11 @@ TEST(image2d, u8_device)
 
   std::uint8_t       data[]       = {2, 8, 9, 4, 3, 6};
   const std::uint8_t ref_values[] = {3, 9, 10, 5, 4, 7};
-  int                shapes[]     = {2, 3};
-  int                strides[]    = {3, 1};
 
-  image2d_view_host<std::uint8_t> img(data, shapes, strides);
+  image2d_view_host<std::uint8_t> img(data, 3, 2, 3, 1);
   auto                            d_img = amazonia::transfer(img);
-  ASSERT_EQ(d_img.nrows(), 2);
-  ASSERT_EQ(d_img.ncols(), 3);
-  ASSERT_EQ(d_img.shape(0), d_img.nrows());
-  ASSERT_EQ(d_img.shape(1), d_img.ncols());
+  ASSERT_EQ(d_img.height(), 2);
+  ASSERT_EQ(d_img.width(), 3);
 
   {
     dim3 grid_dim(1, 1);
@@ -99,29 +91,25 @@ TEST(image2d, u8_device)
 
   amazonia::transfer(d_img, img);
 
-  for (int l = 0; l < img.nrows(); l++)
+  for (int y = 0; y < img.height(); y++)
   {
-    for (int c = 0; c < img.ncols(); c++)
-      ASSERT_EQ(img(l, c), ref_values[l * 3 + c]);
+    for (int x = 0; x < img.width(); x++)
+      ASSERT_EQ(img(x, y), ref_values[y * 3 + x]);
   }
 }
 
 TEST(image2d, u32_device)
 {
   using namespace amazonia;
+  constexpr int e_size = sizeof(std::uint32_t);
 
   std::uint32_t       data[]       = {2, 8, 9, 4, 3, 6};
   const std::uint32_t ref_values[] = {3, 9, 10, 5, 4, 7};
-  int                 shapes[]     = {2, 3};
-  int                 strides[]    = {3 * sizeof(std::uint32_t), sizeof(std::uint32_t)};
 
-  image2d_view_host<std::uint32_t> img(data, shapes, strides);
+  image2d_view_host<std::uint32_t> img(data, 3, 2, 3 * e_size, e_size);
   auto                             d_img = amazonia::transfer(img);
-  ASSERT_EQ(d_img.nrows(), 2);
-  ASSERT_EQ(d_img.ncols(), 3);
-  ASSERT_EQ(d_img.shape(0), d_img.nrows());
-  ASSERT_EQ(d_img.shape(1), d_img.ncols());
-
+  ASSERT_EQ(d_img.height(), 2);
+  ASSERT_EQ(d_img.width(), 3);
   {
     dim3 grid_dim(1, 1);
     dim3 block_dim(3, 2);
@@ -131,9 +119,9 @@ TEST(image2d, u32_device)
 
   amazonia::transfer(d_img, img);
 
-  for (int l = 0; l < img.nrows(); l++)
+  for (int y = 0; y < img.height(); y++)
   {
-    for (int c = 0; c < img.ncols(); c++)
-      ASSERT_EQ(img(l, c), ref_values[l * 3 + c]);
+    for (int x = 0; x < img.width(); x++)
+      ASSERT_EQ(img(x, y), ref_values[y * 3 + x]);
   }
 }

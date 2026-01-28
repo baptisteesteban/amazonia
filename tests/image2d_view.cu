@@ -6,22 +6,18 @@ TEST(image2d_view, u8)
 {
   using namespace amazonia;
 
-  std::uint8_t data[]    = {1, 3, 9, 7, 6, 2};
-  int          shapes[]  = {2, 3};
-  int          strides[] = {3, 1};
+  std::uint8_t data[] = {1, 3, 9, 7, 6, 2};
 
-  image2d_view_host<std::uint8_t> view(data, shapes, strides);
-  ASSERT_EQ(view.nrows(), 2);
-  ASSERT_EQ(view.ncols(), 3);
-  ASSERT_EQ(view.shape(0), view.nrows());
-  ASSERT_EQ(view.shape(1), view.ncols());
-  ASSERT_EQ(view.stride(0), 3);
-  ASSERT_EQ(view.stride(1), 1);
+  image2d_view_host<std::uint8_t> view(data, 3, 2, 3, 1);
+  ASSERT_EQ(view.height(), 2);
+  ASSERT_EQ(view.width(), 3);
+  ASSERT_EQ(view.spitch(), 3);
+  ASSERT_EQ(view.epitch(), 1);
 
-  for (int l = 0; l < view.nrows(); l++)
+  for (int y = 0; y < view.height(); y++)
   {
-    for (int c = 0; c < view.ncols(); c++)
-      ASSERT_EQ(view(l, c), data[l * 3 + c]);
+    for (int x = 0; x < view.width(); x++)
+      ASSERT_EQ(view(x, y), data[y * 3 + x]);
   }
 }
 
@@ -31,21 +27,17 @@ TEST(image2d_view, u32)
   using data_type_t    = std::uint32_t;
   constexpr int e_size = sizeof(data_type_t);
 
-  data_type_t data[]    = {1, 3, 9, 7, 6, 2};
-  int         shapes[]  = {2, 3};
-  int         strides[] = {3 * e_size, e_size};
+  data_type_t data[] = {1, 3, 9, 7, 6, 2};
 
-  image2d_view_host<data_type_t> view(data, shapes, strides);
-  ASSERT_EQ(view.nrows(), 2);
-  ASSERT_EQ(view.ncols(), 3);
-  ASSERT_EQ(view.shape(0), view.nrows());
-  ASSERT_EQ(view.shape(1), view.ncols());
-  ASSERT_EQ(view.stride(0), 3 * e_size);
-  ASSERT_EQ(view.stride(1), e_size);
+  image2d_view_host<data_type_t> view(data, 3, 2, 3 * e_size, e_size);
+  ASSERT_EQ(view.height(), 2);
+  ASSERT_EQ(view.width(), 3);
+  ASSERT_EQ(view.spitch(), 3 * e_size);
+  ASSERT_EQ(view.epitch(), e_size);
 
-  for (int l = 0; l < view.nrows(); l++)
+  for (int y = 0; y < view.height(); y++)
   {
-    for (int c = 0; c < view.ncols(); c++)
-      ASSERT_EQ(view(l, c), data[l * 3 + c]);
+    for (int x = 0; x < view.width(); x++)
+      ASSERT_EQ(view(x, y), data[y * 3 + x]);
   }
 }
