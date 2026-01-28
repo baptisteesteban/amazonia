@@ -34,16 +34,16 @@ namespace amazonia
     image2d& operator=(image2d&&) noexcept;
 
     /// \brief Constructor of a 2D image.
-    /// \param nrows The number of rows of the output 2D image.
-    /// \param ncols The number of columns of the output 2D image.
-    image2d(int nrows, int ncols);
+    /// \param width The width of the desired image.
+    /// \param height The height of the desired image.
+    image2d(int width, int height);
 
     /// \brief Resize the internal storage of a 2D image. Be careful: the
     /// resize operation drop the data stored in the image and replace it
     /// by a new buffer
-    /// \param nrows The desired number of rows
-    /// \param ncols The desired number of columns
-    void resize(int nrows, int ncols);
+    /// \param width The desired width
+    /// \param height The desired height
+    void resize(int width, int height);
 
   private:
     std::shared_ptr<image2d_data<T, D>> m_data; ///< Data storage
@@ -91,26 +91,28 @@ namespace amazonia
   }
 
   template <typename T, typename D>
-  image2d<T, D>::image2d(int nrows, int ncols)
-    : m_data(std::make_shared<image2d_data<T, D>>(nrows, ncols))
+  image2d<T, D>::image2d(int width, int height)
+    : m_data(std::make_shared<image2d_data<T, D>>(width, height))
   {
-    this->m_buffer    = m_data->buffer;
-    this->m_shapes[0] = nrows;
-    this->m_shapes[1] = ncols;
-    std::memcpy(this->m_strides, m_data->strides, 2 * sizeof(int));
+    this->m_buffer = m_data->buffer;
+    this->m_width  = width;
+    this->m_height = height;
+    this->m_spitch = m_data->spitch;
+    this->m_epitch = m_data->epitch;
   }
 
   template <typename T, typename D>
-  void image2d<T, D>::resize(int nrows, int ncols)
+  void image2d<T, D>::resize(int width, int height)
   {
-    auto candidate = std::make_shared<image2d_data<T, D>>(nrows, ncols);
+    auto candidate = std::make_shared<image2d_data<T, D>>(width, height);
     if (candidate)
     {
-      m_data            = candidate;
-      this->m_buffer    = m_data->buffer;
-      this->m_shapes[0] = nrows;
-      this->m_shapes[1] = ncols;
-      std::memcpy(this->m_strides, m_data->strides, 2 * sizeof(int));
+      m_data         = candidate;
+      this->m_buffer = m_data->buffer;
+      this->m_width  = width;
+      this->m_height = height;
+      this->m_spitch = m_data->spitch;
+      this->m_epitch = m_data->epitch;
     }
   }
 } // namespace amazonia

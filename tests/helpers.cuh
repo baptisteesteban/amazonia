@@ -14,29 +14,29 @@ namespace amazonia::tests
   testing::AssertionResult images_equality_comparison(const image2d_view_host<T>& img1,
                                                       const image2d_view_host<T>& img2)
   {
-    if (img1.nrows() != img2.nrows())
-      return testing::AssertionFailure() << std::format("The images have different number of rows (img1: {}, img2: {})",
-                                                        img1.nrows(), img2.nrows());
-    if (img1.ncols() != img2.ncols())
-      return testing::AssertionFailure() << std::format(
-                 "The images have different number of columns (img1: {}, img2: {})", img1.ncols(), img2.ncols());
+    if (img1.width() != img2.width())
+      return testing::AssertionFailure() << std::format("The images have different width (img1: {}, img2: {})",
+                                                        img1.width(), img2.width());
+    if (img1.height() != img2.height())
+      return testing::AssertionFailure() << std::format("The images have different height (img1: {}, img2: {})",
+                                                        img1.height(), img2.height());
 
-    for (int l = 0; l < img1.nrows(); l++)
+    for (int y = 0; y < img1.height(); y++)
     {
-      for (int c = 0; c < img1.ncols(); c++)
+      for (int x = 0; x < img1.width(); x++)
       {
-        if (img1(l, c) != img2(l, c))
+        if (img1(x, y) != img2(x, y))
         {
           if constexpr (std::same_as<T, rgb8>)
           {
             return testing::AssertionFailure()
-                   << std::format("img1({}, {}) ({}, {}, {}) != img2({}, {}) ({}, {}, {})", l, c, img1(l, c).r,
-                                  img1(l, c).g, img1(l, c).b, l, c, img2(l, c).r, img2(l, c).g, img2(l, c).b);
+                   << std::format("img1({}, {}) ({}, {}, {}) != img2({}, {}) ({}, {}, {})", x, y, img1(x, y).r,
+                                  img1(x, y).g, img1(x, y).b, x, y, img2(x, y).r, img2(x, y).g, img2(x, y).b);
           }
           else
           {
             return testing::AssertionFailure()
-                   << std::format("img1({}, {}) ({}) != img2({}, {}) ({})", l, c, img1(l, c), l, c, img2(l, c));
+                   << std::format("img1({}, {}) ({}) != img2({}, {}) ({})", x, y, img1(x, y), x, y, img2(x, y));
           }
         }
       }

@@ -30,18 +30,19 @@ namespace amazonia
 
 
     /// @brief Construct and allocate a pitched 2D buffer.
-    /// @param nrows Number of rows (height).
-    /// @param ncols Number of columns (width).
+    /// @param width The width of the buffer.
+    /// @param height The height of the buffer.
     /// @throws std::runtime_error on allocation failure.
     ///
     /// For `host_t` tag, a contiguous host allocation is performed via
     /// `std::malloc`. For `device_t` tag, `cudaMallocPitch` is used and the
-    /// returned `pitch` becomes `strides[0]` (bytes per row).
-    image2d_data(int nrows, int ncols);
+    /// returned `pitch` becomes `spitch` (bytes per row).
+    image2d_data(int width, int height);
     ~image2d_data();
 
     std::uint8_t* buffer;
-    int           strides[2];
+    int           spitch;
+    int           epitch;
   };
 
   /*
@@ -49,26 +50,26 @@ namespace amazonia
    */
 
   template <typename T, typename D>
-  image2d_data<T, D>::image2d_data(int nrows, int ncols)
+  image2d_data<T, D>::image2d_data(int width, int height)
     : buffer(nullptr)
   {
     constexpr std::size_t e_size = sizeof(T);
     std::size_t           pitch;
     if constexpr (std::same_as<D, host_t>)
     {
-      buffer = (std::uint8_t*)std::malloc(nrows * ncols * e_size);
-      pitch  = ncols * e_size;
+      buffer = (std::uint8_t*)std::malloc(width * height * e_size);
+      pitch  = width * e_size;
       if (!buffer)
         throw std::runtime_error(std::format("Error while allocating host data"));
     }
     else
     {
-      auto e = cudaMallocPitch(&buffer, &pitch, ncols * e_size, nrows);
+      auto e = cudaMallocPitch(&buffer, &pitch, width * e_size, height);
       if (e != cudaSuccess)
         throw std::runtime_error(std::format("Error while allocating device data: {}", cudaGetErrorString(e)));
     }
-    strides[0] = pitch;
-    strides[1] = e_size;
+    spitch = pitch;
+    epitch = e_size;
   }
 
   template <typename T, typename D>

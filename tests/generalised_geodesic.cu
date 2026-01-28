@@ -258,17 +258,13 @@ TEST(dt, euclidian_generalised_geodesic_2d)
   std::uint8_t mask_data[WIDTH * HEIGHT];
   std::memset(mask_data, 0, WIDTH * HEIGHT);
 
-
-  int                                       shapes[]     = {HEIGHT, WIDTH};
-  int                                       u8_strides[] = {WIDTH, 1};
-  int                                       f_strides[]  = {WIDTH * sizeof(float), sizeof(float)};
-  amazonia::image2d_view_host<std::uint8_t> img(img_data, shapes, u8_strides);
-  amazonia::image2d_view_host<float>        ref_dist(ref_data, shapes, f_strides);
-  amazonia::image2d_view_host<std::uint8_t> mask(mask_data, shapes, u8_strides);
-  for (int l = 20; l < 30; l++)
+  amazonia::image2d_view_host<std::uint8_t> img(img_data, WIDTH, HEIGHT, WIDTH, 1);
+  amazonia::image2d_view_host<float>        ref_dist(ref_data, WIDTH, HEIGHT, WIDTH * sizeof(float), sizeof(float));
+  amazonia::image2d_view_host<std::uint8_t> mask(mask_data, WIDTH, HEIGHT, WIDTH, 1);
+  for (int y = 20; y < 30; y++)
   {
-    for (int c = 20; c < 43; c++)
-      mask(l, c) = 1;
+    for (int x = 20; x < 43; x++)
+      mask(x, y) = 1;
   }
 
   auto d_img  = amazonia::transfer(img);
@@ -464,13 +460,10 @@ TEST(dt, geodesic_generalised_geodesic)
   std::memset(mask_data, 0, WIDTH * HEIGHT);
 
 
-  int                                       shapes[]     = {HEIGHT, WIDTH};
-  int                                       u8_strides[] = {WIDTH, 1};
-  int                                       f_strides[]  = {WIDTH * sizeof(float), sizeof(float)};
-  amazonia::image2d_view_host<std::uint8_t> img(img_data, shapes, u8_strides);
-  amazonia::image2d_view_host<float>        ref_dist(ref_data, shapes, f_strides);
-  amazonia::image2d_view_host<std::uint8_t> mask(mask_data, shapes, u8_strides);
-  mask(img.nrows() / 2, img.ncols() / 2) = 1;
+  amazonia::image2d_view_host<std::uint8_t> img(img_data, WIDTH, HEIGHT, WIDTH, 1);
+  amazonia::image2d_view_host<float>        ref_dist(ref_data, WIDTH, HEIGHT, WIDTH * sizeof(float), sizeof(float));
+  amazonia::image2d_view_host<std::uint8_t> mask(mask_data, WIDTH, HEIGHT, WIDTH, 1);
+  mask(img.width() / 2, img.height() / 2) = 1;
 
   auto d_img  = amazonia::transfer(img);
   auto d_mask = amazonia::transfer(mask);
